@@ -1,0 +1,641 @@
+:root {
+    --primary-color: #ff477e;
+    --secondary-color: #ff85a2;
+    --text-color: #fff;
+    --bg-gradient: linear-gradient(180deg, #2b1055 0%, #7597de 100%);
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    touch-action: none;
+    /* Prevent default touch actions like scrolling */
+    user-select: none;
+}
+
+body,
+html {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    font-family: 'Fredoka One', cursive;
+    background: #000;
+}
+
+#game-container {
+    position: relative;
+    width: 100%;
+    height: 100%;
+}
+
+canvas {
+    display: block;
+    width: 100%;
+    height: 100%;
+}
+
+/* UI Layer */
+#ui-layer {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    /* Allow clicks to pass through to canvas if needed, but usually we want UI to block */
+}
+
+.screen {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    color: var(--text-color);
+    pointer-events: auto;
+    transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 100;
+    overflow: hidden;
+}
+
+/* Start screen with sky blue background */
+#start-screen {
+    background: linear-gradient(180deg, #87CEEB 0%, #4A90E2 50%, #6BB6FF 100%);
+}
+
+#start-screen::before {
+    content: '';
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background-image:
+        radial-gradient(circle, #ff69b4 2px, transparent 2px),
+        radial-gradient(circle, #ff1493 1.5px, transparent 1.5px),
+        radial-gradient(circle, #ffb6c1 2.5px, transparent 2.5px);
+    background-size: 100px 100px, 150px 150px, 200px 200px;
+    background-position: 0 0, 50px 50px, 100px 100px;
+    animation: sparkleHearts 20s linear infinite;
+    opacity: 0.4;
+    pointer-events: none;
+}
+
+@keyframes sparkleHearts {
+    0% {
+        transform: translateY(0) scale(1);
+        opacity: 0.4;
+    }
+
+    50% {
+        opacity: 0.6;
+    }
+
+    100% {
+        transform: translateY(-100px) scale(1.1);
+        opacity: 0.4;
+    }
+}
+
+.modal-screen {
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.screen.hidden {
+    opacity: 0;
+    pointer-events: none;
+    display: none;
+    /* simple toggle for now */
+}
+
+/* Typography & Buttons */
+h1 {
+    font-family: 'Dancing Script', cursive;
+    font-size: 6rem;
+    margin-bottom: 0.5rem;
+    color: #fff;
+    text-shadow: 0 0 20px rgba(255, 71, 126, 0.8), 0 0 40px rgba(255, 71, 126, 0.4);
+    animation: floating 3s ease-in-out infinite;
+}
+
+@keyframes floating {
+
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-20px);
+    }
+}
+
+/* Mute Button */
+.mute-btn {
+    position: fixed;
+    top: 30px;
+    right: 30px;
+    background: rgba(255, 255, 255, 0.25);
+    border: 2px solid rgba(255, 255, 255, 0.4);
+    border-radius: 50%;
+    width: 60px;
+    height: 60px;
+    font-size: 28px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.mute-btn:hover {
+    background: rgba(255, 255, 255, 0.35);
+    transform: scale(1.1);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+}
+
+.mute-btn.muted {
+    opacity: 0.6;
+    background: rgba(200, 200, 200, 0.2);
+}
+
+/* Character Preview (Sticky Element) */
+.character-preview {
+    position: absolute;
+    display: flex;
+    gap: 30px;
+    align-items: center;
+    pointer-events: none;
+    z-index: 500;
+    transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Center-Top position when on start screen */
+#start-screen.active~#character-preview {
+    top: 50px;
+    left: 50%;
+    transform: translateX(-50%) scale(0.6);
+}
+
+/* Top-Right Corner position during gameplay */
+#start-screen:not(.active)~#character-preview {
+    top: 20px;
+    right: 20px;
+    transform: scale(0.4);
+    transform-origin: top right;
+}
+
+
+.preview-character {
+    position: relative;
+    animation: characterFloat 3s ease-in-out infinite;
+}
+
+.preview-character:nth-child(2) {
+    animation-delay: 0.5s;
+}
+
+/* Sham (Superhero) Preview */
+.preview-hero {
+    position: relative;
+    width: 60px;
+    height: 100px;
+}
+
+.hero-head {
+    width: 30px;
+    height: 30px;
+    background: #ffdbac;
+    border-radius: 50%;
+    position: absolute;
+    top: 0;
+    left: 15px;
+}
+
+.hero-body {
+    width: 40px;
+    height: 50px;
+    background: #0066cc;
+    position: absolute;
+    top: 28px;
+    left: 10px;
+    border-radius: 5px;
+}
+
+.hero-cape {
+    width: 35px;
+    height: 45px;
+    background: #cc0000;
+    position: absolute;
+    top: 30px;
+    left: -5px;
+    border-radius: 0 0 10px 10px;
+    z-index: -1;
+}
+
+.hero-heart {
+    position: absolute;
+    top: 40px;
+    left: 20px;
+    font-size: 16px;
+    animation: heartPulse 1s ease-in-out infinite;
+}
+
+/* Lucky Charm Aks (Angel) Preview */
+.preview-angel {
+    position: relative;
+    width: 60px;
+    height: 100px;
+}
+
+.angel-halo {
+    width: 35px;
+    height: 8px;
+    border: 3px solid #ffd700;
+    border-radius: 50%;
+    position: absolute;
+    top: -5px;
+    left: 12px;
+}
+
+.angel-head {
+    width: 28px;
+    height: 28px;
+    background: #ffe4e1;
+    border-radius: 50%;
+    position: absolute;
+    top: 8px;
+    left: 16px;
+}
+
+.angel-body {
+    width: 45px;
+    height: 55px;
+    background: white;
+    position: absolute;
+    top: 35px;
+    left: 7px;
+    border-radius: 50% 50% 60% 60%;
+}
+
+.angel-wing {
+    width: 25px;
+    height: 35px;
+    background: rgba(255, 192, 203, 0.6);
+    position: absolute;
+    top: 40px;
+    border-radius: 50%;
+}
+
+.angel-wing-left {
+    left: -15px;
+    transform: rotate(-20deg);
+    animation: wingFlap 2s ease-in-out infinite;
+}
+
+.angel-wing-right {
+    right: -15px;
+    transform: rotate(20deg);
+    animation: wingFlap 2s ease-in-out infinite reverse;
+}
+
+.angel-heart {
+    position: absolute;
+    top: 50px;
+    left: 22px;
+    font-size: 18px;
+    animation: heartPulse 1s ease-in-out infinite;
+}
+
+/* Floating Names */
+.floating-name {
+    display: none;
+    /* Hidden as requested */
+}
+
+.floating-heart {
+    position: absolute;
+    top: -25px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 24px;
+    animation: heartFloat 3s ease-in-out infinite;
+}
+
+/* Center Heart Between Characters */
+.center-heart {
+    font-size: 32px;
+    align-self: flex-start;
+    margin-top: 20px;
+    animation: centerHeartFloat 2.5s ease-in-out infinite;
+    filter: drop-shadow(0 0 10px rgba(255, 105, 180, 0.8));
+}
+
+@keyframes centerHeartFloat {
+
+    0%,
+    100% {
+        transform: translateY(0) scale(1);
+    }
+
+    50% {
+        transform: translateY(-15px) scale(1.3);
+    }
+}
+
+@keyframes characterFloat {
+
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-15px);
+    }
+}
+
+@keyframes nameFloat {
+
+    0%,
+    100% {
+        transform: translateX(-50%) translateY(0);
+        opacity: 0.8;
+    }
+
+    50% {
+        transform: translateX(-50%) translateY(-5px);
+        opacity: 1;
+    }
+}
+
+@keyframes heartFloat {
+
+    0%,
+    100% {
+        transform: translateX(-50%) translateY(0) scale(1);
+        opacity: 1;
+    }
+
+    50% {
+        transform: translateX(-50%) translateY(-10px) scale(1.2);
+        opacity: 0.8;
+    }
+}
+
+@keyframes heartPulse {
+
+    0%,
+    100% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.2);
+    }
+}
+
+@keyframes wingFlap {
+
+    0%,
+    100% {
+        transform: rotate(-20deg);
+    }
+
+    50% {
+        transform: rotate(-30deg);
+    }
+}
+
+/* Floating Hearts on Start Screen */
+.floating-hearts {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    overflow: hidden;
+}
+
+.floating-hearts .heart {
+    position: absolute;
+    font-size: 30px;
+    animation: floatHeart 8s infinite ease-in-out;
+    opacity: 0;
+    filter: drop-shadow(0 0 10px rgba(255, 105, 180, 0.8));
+}
+
+.floating-hearts .heart:nth-child(1) {
+    left: 10%;
+    animation-delay: 0s;
+    animation-duration: 7s;
+}
+
+.floating-hearts .heart:nth-child(2) {
+    left: 25%;
+    animation-delay: 1.5s;
+    animation-duration: 8s;
+}
+
+.floating-hearts .heart:nth-child(3) {
+    left: 40%;
+    animation-delay: 3s;
+    animation-duration: 6.5s;
+}
+
+.floating-hearts .heart:nth-child(4) {
+    left: 55%;
+    animation-delay: 0.5s;
+    animation-duration: 7.5s;
+}
+
+.floating-hearts .heart:nth-child(5) {
+    left: 70%;
+    animation-delay: 2s;
+    animation-duration: 8.5s;
+}
+
+.floating-hearts .heart:nth-child(6) {
+    left: 85%;
+    animation-delay: 1s;
+    animation-duration: 7s;
+}
+
+.floating-hearts .heart:nth-child(7) {
+    left: 15%;
+    animation-delay: 2.5s;
+    animation-duration: 6s;
+}
+
+.floating-hearts .heart:nth-child(8) {
+    left: 90%;
+    animation-delay: 0.8s;
+    animation-duration: 9s;
+}
+
+@keyframes floatHeart {
+    0% {
+        bottom: -10%;
+        opacity: 0;
+        transform: translateX(0) rotate(0deg) scale(0.5);
+    }
+
+    10% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.8;
+        transform: translateX(20px) rotate(180deg) scale(1);
+    }
+
+    90% {
+        opacity: 0.5;
+    }
+
+    100% {
+        bottom: 110%;
+        opacity: 0;
+        transform: translateX(-20px) rotate(360deg) scale(0.8);
+    }
+}
+
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.05);
+    }
+
+    100% {
+        transform: scale(1);
+    }
+}
+
+p {
+    font-size: 1.2rem;
+    margin-bottom: 2rem;
+}
+
+button {
+    background: linear-gradient(135deg, #ff477e 0%, #ff85a2 100%);
+    border: none;
+    padding: 1.2rem 3rem;
+    font-family: 'Fredoka One', cursive;
+    font-size: 1.8rem;
+    color: white;
+    border-radius: 50px;
+    cursor: pointer;
+    box-shadow: 0 10px 30px rgba(255, 71, 126, 0.4);
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+}
+
+button:hover {
+    transform: translateY(-5px) scale(1.05);
+    box-shadow: 0 15px 40px rgba(255, 71, 126, 0.6);
+}
+
+button:active {
+    transform: scale(0.95);
+}
+
+/* HUD */
+#hud {
+    justify-content: flex-start;
+    align-items: flex-start;
+    padding: 20px;
+    background: none;
+    pointer-events: none;
+    width: 100%;
+}
+
+.score-board {
+    width: 100%;
+    max-width: 400px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 15px;
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(5px);
+    border-radius: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.dist-label {
+    font-family: 'Dancing Script', cursive;
+    font-size: 2rem;
+    color: #fff;
+    margin-bottom: 5px;
+    text-shadow: 2px 2px 0 var(--primary-color);
+}
+
+.progress-container {
+    position: relative;
+    width: 100%;
+    height: 30px;
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 15px;
+    border: 3px solid #fff;
+    overflow: hidden;
+}
+
+#progress-bar {
+    width: 0%;
+    height: 100%;
+    background: linear-gradient(90deg, #ff477e, #ff85a2);
+    box-shadow: 0 0 10px #ff477e;
+    transition: width 0.2s linear;
+}
+
+.progress-text {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 1rem;
+    color: #fff;
+    text-shadow: 1px 1px 2px #000;
+}
+
+/* Orientation Warning */
+#orientation-warning {
+    display: none;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: #2b1055;
+    z-index: 9999;
+    color: white;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    text-align: center;
+}
+
+/* Mobile Portrait Logic */
+@media screen and (orientation: portrait) {
+    #orientation-warning {
+        display: flex;
+    }
+
+    #game-container canvas,
+    #ui-layer {
+        display: none;
+    }
+}

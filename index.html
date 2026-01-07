@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, orientation=landscape">
+    <title>Love Story Runner</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Fredoka+One&display=swap"
+        rel="stylesheet">
+</head>
+
+<body>
+
+    <div id="game-container">
+        <canvas id="gameCanvas"></canvas>
+
+        <!-- Orientation Warning Message -->
+        <div id="orientation-warning">
+            <p>Please rotate your device to landscape mode ❤️</p>
+        </div>
+
+        <!-- UI Interactive Layer -->
+        <div id="ui-layer">
+
+            <!-- Start Screen -->
+            <div id="start-screen" class="screen modal-screen active">
+                <div class="floating-hearts">
+                    <span class="heart">❤️</span>
+                    <span class="heart">💕</span>
+                    <span class="heart">💖</span>
+                    <span class="heart">💗</span>
+                    <span class="heart">❤️</span>
+                    <span class="heart">💕</span>
+                    <span class="heart">💖</span>
+                    <span class="heart">💗</span>
+                </div>
+                <h1>Love Run</h1>
+                <p>Help Sham reach Lucky Charm Aks!</p>
+                <p class="instructions">Arrows / Swipe to Move & Jump</p>
+                <button id="start-btn">Start Running</button>
+            </div>
+
+            <!-- Character Preview (Visible on all screens) -->
+            <div id="character-preview" class="character-preview">
+                <!-- Sham (Superhero) -->
+                <div class="preview-character">
+                    <div class="preview-hero">
+                        <div class="hero-head"></div>
+                        <div class="hero-body"></div>
+                        <div class="hero-cape"></div>
+                        <div class="hero-heart">❤️</div>
+                    </div>
+                </div>
+
+                <!-- Center Heart Between Characters -->
+                <div class="center-heart">❤️</div>
+
+                <!-- Lucky Charm Aks (Angel) -->
+                <div class="preview-character">
+                    <div class="preview-angel">
+                        <div class="angel-halo"></div>
+                        <div class="angel-head"></div>
+                        <div class="angel-body"></div>
+                        <div class="angel-wing angel-wing-left"></div>
+                        <div class="angel-wing angel-wing-right"></div>
+                        <div class="angel-heart">💖</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- HUD -->
+            <div id="hud" class="screen hidden">
+                <div class="score-board">
+                    <div class="dist-label">Distance to Love</div>
+                    <div class="progress-container">
+                        <div id="progress-bar"></div>
+                        <div id="distance-val" class="progress-text">0m</div>
+                    </div>
+                </div>
+            </div>
+
+
+
+            <!-- Game Over Screen -->
+            <div id="game-over-screen" class="screen modal-screen hidden">
+                <h1 id="go-title">So Close!</h1>
+                <p id="go-message">Don't give up on love.</p>
+                <button id="restart-btn">TRY AGAIN</button>
+            </div>
+
+            <!-- Win Screen -->
+            <div id="win-screen" class="screen modal-screen hidden">
+                <h1>Reunited!</h1>
+                <p>Sham and Lucky Charm Aks are together and happy now! ❤️</p>
+                <p>Love conquers all.</p>
+                <button id="play-again-btn">PLAY AGAIN</button>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://unpkg.com/three@0.150.1/build/three.min.js"></script>
+    <script src="js/lib/socket.io.js"></script>
+
+
+    <!-- Utilities and Classes -->
+    <script src="js/audio.js"></script>
+    <script src="js/engine.js"></script>
+    <script src="js/renderer.js"></script>
+    <script src="js/input.js"></script>
+
+    <!-- Entities -->
+    <script src="js/entities/player.js"></script>
+    <script src="js/entities/obstacle.js"></script>
+    <script src="js/entities/girl.js"></script>
+
+    <!-- Core Game Logic -->
+    <script src="js/game.js"></script>
+    <script src="js/main.js"></script>
+
+</body>
+
+</html>
