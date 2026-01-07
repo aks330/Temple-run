@@ -44,7 +44,7 @@ class Renderer {
         // Road Geometry
         const geometry = new THREE.PlaneGeometry(roadWidth, roadLength);
         const material = new THREE.MeshPhongMaterial({
-            color: 0xff477e,
+            color: 0xffb6c1, // Light Pink
             side: THREE.DoubleSide
         });
 
