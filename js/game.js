@@ -376,7 +376,7 @@ class Game {
     }
 
     createWinHeartParticles() {
-        // Create 30 floating heart particles
+        // Create 60 floating heart particles for a more dramatic effect
         this.winHearts = [];
         const heartShape = new THREE.Shape();
         heartShape.moveTo(0, 0);
@@ -384,27 +384,35 @@ class Game {
         heartShape.bezierCurveTo(-0.5, 0, -0.25, 0.25, 0, 0);
 
         const heartGeo = new THREE.ShapeGeometry(heartShape);
-        const heartMat = new THREE.MeshBasicMaterial({
-            color: 0xff1493,
-            transparent: true,
-            opacity: 0.8,
-            side: THREE.DoubleSide
-        });
+        const colors = [0xff1493, 0xff69b4, 0xff0000, 0xff0066]; // Different shades of pink/red
 
-        for (let i = 0; i < 30; i++) {
-            const heart = new THREE.Mesh(heartGeo, heartMat.clone());
-            heart.scale.set(0.3, 0.3, 1);
+        for (let i = 0; i < 60; i++) {
+            const color = colors[Math.floor(Math.random() * colors.length)];
+            const heartMat = new THREE.MeshBasicMaterial({
+                color: color,
+                transparent: true,
+                opacity: 0.8,
+                side: THREE.DoubleSide
+            });
+
+            const heart = new THREE.Mesh(heartGeo, heartMat);
+            const scale = 0.2 + Math.random() * 0.4;
+            heart.scale.set(scale, scale, 1);
             heart.rotation.z = Math.PI;
 
-            // Random position around the couple
+            // Random position around the couple, starting from bottom
             heart.position.set(
-                (Math.random() - 0.5) * 10,
-                -5 + Math.random() * 2,
-                -(this.finishDistance / 100) + (Math.random() - 0.5) * 5
+                (Math.random() - 0.5) * 12,
+                -10 + Math.random() * 5, // Start well below ground
+                -(this.finishDistance / 100) + (Math.random() - 0.5) * 8
             );
 
-            heart.userData.speed = 0.5 + Math.random() * 1;
-            heart.userData.wobble = Math.random() * Math.PI * 2;
+            heart.userData = {
+                speed: 1.0 + Math.random() * 2.0,
+                wobble: Math.random() * Math.PI * 2,
+                wobbleSpeed: 1 + Math.random() * 2,
+                rotationSpeed: (Math.random() - 0.5) * 0.05
+            };
 
             this.renderer.scene.add(heart);
             this.winHearts.push(heart);
@@ -414,21 +422,21 @@ class Game {
     updateWinHeartParticles() {
         if (!this.winHearts) return;
 
-        const time = Date.now() / 1000;
-        this.winHearts.forEach((heart, i) => {
+        this.winHearts.forEach((heart) => {
             // Float upward
-            heart.position.y += heart.userData.speed * 0.05;
+            heart.position.y += heart.userData.speed * 0.08;
 
             // Wobble side to side
-            heart.position.x += Math.sin(time * 2 + heart.userData.wobble) * 0.02;
+            const time = Date.now() / 1000;
+            heart.position.x += Math.sin(time * heart.userData.wobbleSpeed + heart.userData.wobble) * 0.03;
 
             // Rotate
-            heart.rotation.z += 0.02;
+            heart.rotation.z += heart.userData.rotationSpeed;
 
             // Reset if too high
-            if (heart.position.y > 10) {
-                heart.position.y = -5;
-                heart.position.x = (Math.random() - 0.5) * 10;
+            if (heart.position.y > 15) {
+                heart.position.y = -8;
+                heart.position.x = (Math.random() - 0.5) * 12;
             }
         });
     }

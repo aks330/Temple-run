@@ -35,6 +35,7 @@ class Renderer {
 
         // 6. Sky with Clouds and Stars
         this.createSkyElements();
+
     }
 
     createRoad() {
